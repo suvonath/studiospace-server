@@ -1,36 +1,36 @@
-
 import { MongoClient, Db } from "mongodb";
+import dotenv from "dotenv";
 
-const uri = process.env.MONGODB_URI;
+dotenv.config();
 
-if (!uri) {
+const MONGODB_URI = process.env.MONGODB_URI;
+const DB_NAME = process.env.DB_NAME || "studiospace";
+
+if (!MONGODB_URI) {
   throw new Error("MONGODB_URI is missing from environment variables");
 }
 
-const client = new MongoClient(uri);
+const client = new MongoClient(MONGODB_URI);
 
 let database: Db;
 
-export async function connectDB(): Promise<Db> {
-  if (database) {
-    return database;
+export const connectDB = async (): Promise<void> => {
+  try {
+    await client.connect();
+
+    database = client.db(DB_NAME);
+
+    console.log("MongoDB connected successfully");
+  } catch (error) {
+    console.error("MongoDB connection failed:", error);
+    process.exit(1);
   }
+};
 
-  await client.connect();
-
-  database = client.db(process.env.DB_NAME || "studiospace");
-
-  await database.command({ ping: 1 });
-
-  console.log("MongoDB connected successfully!");
-
-  return database;
-}
-
-export function getDB(): Db {
+export const getDB = (): Db => {
   if (!database) {
-    throw new Error("Database has not been initialized");
+    throw new Error("Database is not connected yet");
   }
 
   return database;
-}
+};
