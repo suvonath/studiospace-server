@@ -1,22 +1,23 @@
+
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
 
 import healthRoutes from "./routes/health.routes.js";
-
-dotenv.config();
+import protectedRoutes from "./routes/protected.routes.js";
 
 const app = express();
 
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:3000",
+    origin: process.env.CLIENT_URL,
     credentials: true,
   })
 );
 
 app.use(express.json());
 
+// Routes
 app.use("/api/health", healthRoutes);
+app.use("/api/protected", protectedRoutes);
 
 export default app;
